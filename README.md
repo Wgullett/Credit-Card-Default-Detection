@@ -37,7 +37,23 @@ The Python script `default_credit_cards.py` implements the following steps:
 4.  **Hyperparameter Tuning:**
     * The script uses **Bayesian Hyperparameter Tuning** via the `hyperopt` library to find the optimal hyperparameters for the XGBoost model.
     * The algorithm, specifically **Tree of Parzen Estimators (TPE)**, intelligently searches for the best combination of `max_depth`, `learning_rate`, and `subsample` to improve accuracy.
-    * The model is re-trained with the best-found parameters, and its improved accuracy is calculated on the test set.
+    * The model is re-trained with the best-found parameters, and its improved recall is calculated on the test set.
+  
+
+**Results**
+
+Before Bayesian Hyperparameter Tuning: 0.833
+Precision: 0.650887573964497
+Recall: 0.3648424543946932
+F1 Score: 0.4675876726886291
+
+After Bayesian Hyperparameter Tuning: 0.836
+Precision: 0.7032967032967034
+Recall: 0.31840796019900497
+F1 Score: 0.4383561643835616
+
+Hyperparameter tunning lowered recall and f1-score by aproximately 5%. However, it increased accuracy by approimately 0.3%, and increased precision by 5%. Precision is important as it lowers the precent of "false flags". 
+
 
 ---
 
