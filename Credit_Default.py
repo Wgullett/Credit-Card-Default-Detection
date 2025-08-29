@@ -85,7 +85,7 @@ def objective(params):
     xgb_model = XGBClassifier(**params)
     xgb_model.fit(X_train, Y_train)
     y_pred = xgb_model.predict(X_val)
-    score = recall_score(Y_val, y_pred)
+    score = sk.metrics.accuracy_score(Y_val, y_pred)
     return {'loss' : -score, 'status': STATUS_OK}
 
 # The fmin function is used to minimize the objective function. It takes the objective function, the search space, the optimization algorithm (TPE), and the maximum number of evaluations as input.
