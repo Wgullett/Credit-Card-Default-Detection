@@ -1,12 +1,13 @@
 import pandas as pd
 import sklearn as sk
+from sklearn.metrics import precision_score, recall_score, f1_score
 from xgboost import XGBClassifier
 from matplotlib import pyplot
 from hyperopt import fmin, tpe, hp, STATUS_OK
 import numpy as np
 
 # Load the dataset
-df = pd.read_csv("VScode/default_credit_cards.csv", index_col=0)
+df = pd.read_csv("C:\\Users\\willg\\PythonCode\\VScode\\default_credit_cards.csv", index_col=0)
 print(df)
 
 # Divide the dataset into features and target variable
@@ -60,14 +61,22 @@ for i in range(total):
     if predictions[i] == actual[i]:
         sum+=1
 
+# Additional metrics
+precision = precision_score(actual, predictions)
+recall = recall_score(actual, predictions)
+f1 = f1_score(actual, predictions)
+
 print("Before Bayesian Hyperparameter Tuning: " + str(sum/total))
+print("Precision: " + str(precision))
+print("Recall: " + str(recall))
+print("F1 Score: " + str(f1))
 
 #Hyperparameter Tuning
 # Hyperopt is a Python library for serial and parallel optimization over awkward search spaces, which may include real-valued, discrete, and conditional dimensions.
 # It is based on the Tree of Parzen Estimators (TPE) algorithm, which is a Bayesian optimization algorithm that models the objective function as a Gaussian process.
 space = {
     'max_depth' : hp.choice('max_depth', np.arange(1,20, dtype=int)),
-    'learning_rate' : hp.loguniform('learning_rate', -5, 3),
+    'learning_rate' : hp.loguniform('learning_rate', -10, 5),
     'subsample' : hp.uniform('subsample', 0.5, 1)
 }
 
@@ -76,7 +85,7 @@ def objective(params):
     xgb_model = XGBClassifier(**params)
     xgb_model.fit(X_train, Y_train)
     y_pred = xgb_model.predict(X_val)
-    score = sk.metrics.accuracy_score(Y_val, y_pred)
+    score = recall_score(Y_val, y_pred)
     return {'loss' : -score, 'status': STATUS_OK}
 
 # The fmin function is used to minimize the objective function. It takes the objective function, the search space, the optimization algorithm (TPE), and the maximum number of evaluations as input.
@@ -99,3 +108,12 @@ for i in range(total):
         sum+=1
 
 print("After Bayesian Hyperparameter Tuning: " + str(sum/total))
+
+#Additional metrics
+precision = precision_score(actual, predictions)
+recall = recall_score(actual, predictions)
+f1 = f1_score(actual, predictions)
+
+print("Precision: " + str(precision))
+print("Recall: " + str(recall))
+print("F1 Score: " + str(f1))
