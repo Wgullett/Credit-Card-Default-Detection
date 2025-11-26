@@ -26,13 +26,13 @@ The model was trained using three optimization approaches:
 
 ---
 
-## 📊 SHAP Visualization Analysis
+## SHAP Visualization Analysis
 
 SHAP values explain how each feature contributes to individual predictions. Below is a detailed breakdown of each visualization.
 
 ---
 
-### 🔹 Image 1: Feature Importance (Beeswarm Plot)
+### Image 1: Feature Importance (Beeswarm Plot)
 
 ![Beeswarm Plot](image1)
 
