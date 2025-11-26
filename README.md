@@ -34,7 +34,7 @@ SHAP values explain how each feature contributes to individual predictions. Belo
 
 ### Image 1: Feature Importance (Beeswarm Plot)
 
-![Beeswarm Plot](image1)
+![Beeswarm Plot](shap_beeswarm.png)
 
 **What This Shows:** A comprehensive ranking of all features by their impact on default predictions.
 
@@ -78,7 +78,7 @@ SHAP values explain how each feature contributes to individual predictions. Belo
 
 ### Image 2: Decision Plot
 
-![Decision Plot](image2)
+![Decision Plot](shap_decision.png)
 
 **What This Shows:** The journey from base prediction to final prediction for multiple customers, showing how features accumulate to create risk assessments.
 
@@ -116,7 +116,7 @@ SHAP values explain how each feature contributes to individual predictions. Belo
 
 ### Image 3: Credit Limit Impact
 
-![Credit Limit Scatter](image3)
+![Credit Limit Scatter](shap_scatter_Credit_Limit_Amount.png)
 
 **What This Shows:** The relationship between credit limit amounts and their impact on default predictions.
 
@@ -154,7 +154,7 @@ SHAP values explain how each feature contributes to individual predictions. Belo
 
 ### Image 4: Payment Status 2 Months Ago
 
-![Payment Status 2 Months Scatter](image4)
+![Payment Status 2 Months Scatter](shap_scatter_Payment_Status2.png)
 
 **What This Shows:** How payment status from 2 months ago affects default risk.
 
@@ -194,7 +194,7 @@ SHAP values explain how each feature contributes to individual predictions. Belo
 
 ### Image 5: Payment Status Current Month (Most Critical)
 
-![Current Payment Status Scatter](image5)
+![Current Payment Status Scatter](shap_scatter_Payment_Status_Current.png)
 
 **What This Shows:** The single most important predictor - current payment status.
 
@@ -242,7 +242,7 @@ SHAP values explain how each feature contributes to individual predictions. Belo
 
 ### Image 6: Waterfall Plot (Individual Customer Story)
 
-![Waterfall Plot](image6)
+![Waterfall Plot](shap_waterfall.png)
 
 **What This Shows:** How the model built its prediction for ONE specific high-risk customer, showing the step-by-step contribution of each feature.
 
