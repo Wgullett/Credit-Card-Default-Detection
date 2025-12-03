@@ -77,7 +77,7 @@ def calculate_business_profit(y_true, y_pred):
 | **True Negative (TN)** | Correctly approve good customer | +$200/year | 1,385 | +$277,000 |
 | **True Positive (TP)** | Correctly catch default early | +$50 | 524 | +$26,200 |
 | **False Positive (FP)** | Wrongly deny good customer | -$200 | 952 | -$190,400 |
-| **False Negative (FN)** | Miss a default 💀 | -$5,000 | 139 | -$695,000 |
+| **False Negative (FN)** | Miss a default | -$5,000 | 139 | -$695,000 |
 | **TOTAL** | | | **3,000** | **-$582,200** |
 
 **Per Customer:** -$582,200 ÷ 3,000 = **-$194.07**
