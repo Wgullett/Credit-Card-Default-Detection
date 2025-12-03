@@ -2,27 +2,99 @@
 
 ## Project Overview
 
-This project builds a machine learning model to predict credit card defaults using XGBoost and interprets the results using SHAP (SHapley Additive exPlanations). The model analyzes 30,000 credit card customer records to identify patterns that predict default risk, optimizing for business profit rather than just model accuracy.
+This project builds a machine learning model to predict credit card defaults using XGBoost and interprets the results using SHAP (SHapley Additive exPlanations). The model analyzes 30,000 credit card customer records from Taiwan (2005) to identify patterns that predict default risk, optimizing for **business profit** rather than just model accuracy.
 
 ### Key Objectives
 - Predict which customers will default on their credit card payments
 - Understand **why** the model makes specific predictions using SHAP
-- Optimize decision thresholds for maximum business profitability
+- Optimize decision thresholds for maximum business profitability  
 - Provide actionable insights for credit risk management
+
+### Dataset Information
+- **Source:** UCI Machine Learning Repository - Default of Credit Card Clients Dataset
+- **Size:** 30,000 customers from Taiwan
+- **Time Period:** April - September 2005
+- **Features:** 23 explanatory variables
+- **Target:** Default payment (1 = Yes, 0 = No)
 
 ---
 
 ## Model Performance
 
-The model was trained using three optimization approaches:
+### Dataset Split & Cross-Validation
+- **Training:** 27,000 customers (90%) - Default rate: 22.1%
+- **Test:** 3,000 customers (10%) - Default rate: 22.1%
+- **Hyperparameter Tuning:** 5-fold stratified cross-validation
 
-| Model Type | F1 Score | Precision | Recall | ROC AUC | Business Profit |
-|-----------|----------|-----------|--------|---------|-----------------|
-| Baseline XGBoost | ~0.45 | ~0.40 | ~0.52 | ~0.77 | Baseline |
-| F1-Optimized | ~0.50 | ~0.45 | ~0.56 | ~0.78 | +5% vs baseline |
-| **Profit-Optimized** | ~0.48 | ~0.48 | ~0.48 | ~0.78 | **+12% vs baseline** |
+### Performance Comparison (Test Set)
 
-**Key Finding:** The profit-optimized model provides the best business outcomes by balancing the $5,000 cost of missed defaults against the $200 cost of denying good customers.
+| Model | F1 Score | Precision | Recall | PR AUC | Profit/Customer | Total Profit |
+|-------|----------|-----------|--------|--------|-----------------|--------------|
+| Baseline | 0.449 | 0.640 | 0.345 | 0.557 | -$580.92 | -$1,742,750 |
+| F1-Optimized | 0.562 | 0.559 | 0.564 | 0.590 | -$358.97 | -$1,076,900 |
+| **Profit-Optimized** | 0.490 | 0.355 | **0.790** | 0.570 | **-$194.07** | **-$582,200** |
+
+### Cross-Validation Hyperparameter Tuning
+
+**F1-Optimized Model:**
+- Best CV F1 Score: **0.5462 ± 0.0064** (highly stable!)
+- Training Time: 4 min 49 sec (100 iterations)
+
+**Profit-Optimized Model:**
+- Best CV Profit: **-$1,121,500 ± $64,191**
+- Training Time: 4 min 58 sec (100 iterations)
+
+---
+
+## Business Cost Function Explained
+
+### The Problem with Traditional Metrics
+
+Traditional metrics like **accuracy** (81.2% for baseline) treat all errors equally. But in credit default:
+- Missing a default costs **$5,000**
+- Denying a good customer costs **$200**
+- This is a **25:1 cost ratio** that F1 score ignores!
+
+### Cost Structure (Industry-Standard)
+
+```python
+def calculate_business_profit(y_true, y_pred):
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    
+    cost_fn = 5000   # Miss a default → Lose $5,000
+    cost_fp = 200    # Deny good customer → Lose $200 profit
+    profit_tn = 200  # Approve good customer → Gain $200
+    profit_tp = 50   # Catch default early → Gain $50
+    
+    total_profit = (profit_tn * tn) + (profit_tp * tp) - (cost_fp * fp) - (cost_fn * fn)
+    return total_profit / len(y_true)
+```
+
+### The Four Outcomes
+
+| Outcome | What Happens | Cost/Profit | Count (Profit Model) | Subtotal |
+|---------|--------------|-------------|---------------------|----------|
+| **True Negative (TN)** | Correctly approve good customer | +$200/year | 1,385 | +$277,000 |
+| **True Positive (TP)** | Correctly catch default early | +$50 | 524 | +$26,200 |
+| **False Positive (FP)** | Wrongly deny good customer | -$200 | 952 | -$190,400 |
+| **False Negative (FN)** | Miss a default 💀 | -$5,000 | 139 | -$695,000 |
+| **TOTAL** | | | **3,000** | **-$582,200** |
+
+**Per Customer:** -$582,200 ÷ 3,000 = **-$194.07**
+
+### Why Profit-Optimization Wins
+
+| Model | Recall | Missed Defaults (FN) | FN Cost | Loss/Customer |
+|-------|--------|---------------------|---------|---------------|
+| Baseline | 34.5% | 434 | -$2,170,000 | **-$580.92** |
+| F1-Optimized | 56.4% | 289 | -$1,445,000 | **-$358.97** |
+| **Profit-Optimized** | **79.0%** | **139** | **-$695,000** | **-$194.07** |
+
+**Savings:** Catching 295 more defaults = **$1,475,000 saved** - Additional FP costs ($164,600) = **Net $1.16M improvement**
+
+### Why All Models Show Negative Profit
+
+The dataset has a **22.1% default rate** (real-world is 2-5%). Even with perfect prediction, this high baseline makes profitability challenging. However, the profit-optimized model **reduces losses by 66.6%** - a massive improvement.
 
 ---
 
@@ -291,28 +363,28 @@ SHAP values explain how each feature contributes to individual predictions. Belo
 
 ---
 
-## Feature Dictionary
+## Dataset Feature Dictionary
 
-### Payment Status Features (PAY_0 through PAY_6)
+### Payment Status Features (X6-X11 in original dataset)
 
-| Feature | Meaning | Time Period | Values |
-|---------|---------|-------------|--------|
-| PAY_0 | Most recent payment status | Current month (September) | -2 to 8+ |
-| PAY_2 | Payment status 2 months ago | July | -2 to 8+ |
-| PAY_3 | Payment status 3 months ago | June | -2 to 8+ |
-| PAY_4 | Payment status 4 months ago | May | -2 to 8+ |
-| PAY_5 | Payment status 5 months ago | April | -2 to 8+ |
-| PAY_6 | Payment status 6 months ago | March | -2 to 8+ |
+| Feature | Time Period | Values | Meaning |
+|---------|-------------|--------|---------|
+| PAY_0 | September 2005 (current) | -2 to 9 | Most recent payment status |
+| PAY_2 | July 2005 (2 months ago) | -2 to 9 | Payment status 2 months ago |
+| PAY_3 | June 2005 (3 months ago) | -2 to 9 | Payment status 3 months ago |
+| PAY_4 | May 2005 (4 months ago) | -2 to 9 | Payment status 4 months ago |
+| PAY_5 | April 2005 (5 months ago) | -2 to 9 | Payment status 5 months ago |
+| PAY_6 | March 2005 (6 months ago) | -2 to 9 | Payment status 6 months ago |
 
-**Value Scale:**
-- **-2:** No consumption (no balance)
-- **-1:** Paid in full (balance paid off)
+**Payment Status Value Scale:**
+- **-2:** No consumption (no balance/inactive account)
+- **-1:** Paid in full (entire balance paid - "pay duly")
 - **0:** Revolving credit (minimum payment made, carrying balance)
 - **1:** Payment delay of 1 month
-- **2:** Payment delay of 2 months
+- **2:** Payment delay of 2 months **CRITICAL THRESHOLD**
 - **3-8:** Payment delay of 3-8 months
+- **9:** Payment delay of 9+ months
 
-**Critical Threshold:** PAY ≥ 2 indicates severe delinquency
 
 ---
 
@@ -485,7 +557,7 @@ python Credit_Default.py
 
 ---
 
-## 📊 Key Findings Summary
+## Key Findings Summary
 
 ### What Predicts Default?
 
